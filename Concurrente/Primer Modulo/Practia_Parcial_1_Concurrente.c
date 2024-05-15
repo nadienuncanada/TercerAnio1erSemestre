@@ -637,3 +637,22 @@ Process estacion[id:1..7]{
     }
 }
 //22mins aprox.
+
+// 2. MONITORES. Una boletería vende E entradas para un partido, y hay P personas (P>E) que quieren comprar.
+// Se las atiende por orden de llegada y la función vender() simula la venta. 
+// La boletería debe informarle a la persona que no hay más entradas disponibles o devolverle el número de entrada si pudo hacer la compra.
+
+// 3. MONITORES. Por un puente turístico puede pasar sólo un auto a la vez. 
+// Hay N autos que quieren pasar (función pasar()) y lo hacen por orden de llegada.
+
+// Resolver con MONITORES el siguiente problema. En un sistema operativo se ejecutan 20 procesos que 
+// periódicamente realizan cierto cómputo mediante la función Procesar(). Los resultados de dicha función son 
+// persistidos en un archivo, para lo que se requiere de acceso al subsistema de E/S. Sólo un proceso a la vez puede hacer 
+// uso del subsistema de E/S, y el acceso al mismo se define por la prioridad del proceso (menor valor indica mayor 
+// prioridad).
+
+// Monitor: En una empresa trabajan 20 vendedores ambulantes que forman 5 equipos de 4 personas cada uno (cada vendedor 
+// conoce previamente a que equipo pertenece). Cada equipo se encarga de vender un producto diferente. Las 
+// personas de un equipo se deben juntar antes de comenzar a trabajar. Luego cada integrante del equipo trabaja 
+// independientemente del resto vendiendo ejemplares del producto correspondiente. Al terminar cada integrante del 
+// grupo debe conocer la cantidad de ejemplares vendidos por el grupo. Nota: maximizar la concurrencia.
