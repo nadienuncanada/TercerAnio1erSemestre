@@ -420,7 +420,7 @@ Process ejercicio5 is
         end select;
       od
   end usuario;
-  task body servidor is
+task body servidor is
   begin
     loop //constantemente recibe corrigue y deja el resultado en la variable out correcto.
       accept entrega(documento,correcto) do
@@ -431,3 +431,218 @@ Process ejercicio5 is
 begin
   null;
 end ejercicio5;
+
+6. En una playa hay 5 equipos de 4 personas cada uno (en total son 20 personas donde cada 
+una conoce previamente a que equipo pertenece). Cuando las personas van llegando 
+esperan con los de su equipo hasta que el mismo esté completo (hayan llegado los 4 
+integrantes), a partir de ese momento el equipo comienza a jugar. El juego consiste en que 
+cada integrante del grupo junta 15 monedas de a una en una playa (las monedas pueden ser 
+de 1, 2 o 5 pesos) y se suman los montos de las 60 monedas conseguidas en el grupo. Al 
+finalizar cada persona debe conocer el grupo que más dinero junto. Nota: maximizar la 
+concurrencia. Suponga que para simular la búsqueda de una moneda por parte de una 
+persona existe una función Moneda() que retorna el valor de la moneda encontrada
+
+//UFFFFFFFFFFFFFFFFFFFFF
+
+
+7. Hay un sistema de reconocimiento de huellas dactilares de la policía que tiene 8 Servidores 
+para realizar el reconocimiento, cada uno de ellos trabajando con una Base de Datos propia; 
+a su vez hay un Especialista que utiliza indefinidamente. El sistema funciona de la siguiente 
+manera: el Especialista toma una imagen de una huella (TEST) y se la envía a los servidores 
+para que cada uno de ellos le devuelva el código y el valor de similitud de la huella que más 
+se asemeja a TEST en su BD; al final del procesamiento, el especialista debe conocer el 
+código de la huella con mayor valor de similitud entre las devueltas por los 8 servidores. 
+Cuando ha terminado de procesar una huella comienza nuevamente todo el ciclo. Nota: 
+suponga que existe una función Buscar(test, código, valor) que utiliza cada Servidor donde 
+recibe como parámetro de entrada la huella test, y devuelve como parámetros de salida el 
+código y el valor de similitud de la huella más parecida a test en la BD correspondiente. 
+Maximizar la concurrencia y no generar demora innecesaria
+
+Process ejercicio7 is//puedo hacer un entry(huella,codigo,valor) y enviar solo la huella y despues recibir el codigo y el valor o hago 2, no estaria aprovechando la bidireccionalidad.
+  task type servidor is;
+    Entry envio(huella: in imagen);
+  arrayServidores: array (1..8) of servidor;
+  task Especialista is
+    Entry resultado(codigo:in int, valor: in int); 
+  end especialista;
+
+  task body especialista is
+    imagen huella;
+  begin
+    loop 
+      int codigoAct=0, valorAct=-1;
+      huella=conseguirTest();
+      for(i=1 to 8 )do
+        arrayServidores(i).analisis(huella);
+      end for;
+      for(i=1 to 8) do
+      accept resultado(codigo: in int,valor:in int) do
+        if(valorAct<valor) do
+          codigoAct=codigo;
+          valorAct=valor;
+        end if;
+      end resultado;
+      print("el codigo",codigoAct,"es el valor mas alto, para la huella:",huella,'con un valor de: ',valorAct);
+    end loop;
+  end especialista;
+
+  task body servidor is
+  int codigo,valor;
+  imagen test;
+  begin
+    loop
+      accept analisis(huella:in int) do 
+        test=huella;
+        Buscar(test,codigo,valor);
+      end analisis;
+      especialista.resultado(codigo,valor)
+    end loop;
+  end servidor;
+
+begin
+  null;
+end ejercicio7;
+
+
+8. Una empresa de limpieza se encarga de recolectar residuos en una ciudad por medio de 3 
+camiones. Hay P personas que hacen continuos reclamos hasta que uno de los camiones 
+pase por su casa. Cada persona hace un reclamo, espera a lo sumo 15 minutos a que llegue 
+un camión y si no vuelve a hacer el reclamo y a esperar a lo sumo 15 minutos a que llegue 
+un camión y así sucesivamente hasta que el camión llegue y recolecte los residuos; en ese 
+momento deja de hacer reclamos y se va. Cuando un camión está libre la empresa lo envía a 
+la casa de la persona que más reclamos ha hecho sin ser atendido. Nota: maximizar la 
+concurrencia.
+
+process ejercicio8 is
+  task type camion is;
+  arrayCamiones:array(1..3) of camion;
+
+  task type persona is
+    Entry asignacion(id: in int);
+    Entry recolectar();
+  end persona;
+  arrayPersona:array(1..P) of persona;
+
+  task empresa is
+      Entry pedidos(id: in int);
+      Entry libre(id: out int)
+  end empresa;
+
+
+  task body persona is
+  int id;
+  bool atendido=false;
+  begin
+    accept asignacion(i) do 
+    id=i;
+    end asignacion;
+    while(!atendido) do
+      empresa.pedidos(id);
+      SELECT
+        accept recolectar() do
+          atendido=true;
+      OR DELAY(15mins) do
+          null; 
+      end select;
+    od;
+  end persona;
+
+  task body empresa is 
+    pedidos:array(1..P) of int;//todos con -1;
+    int esperando=0;
+    bool ok=false;
+  begin 
+    loop
+    SELECT 
+      accept pedidos(id) do 
+        if(pedidos(id)==-1) do
+          esperando++;
+          pedidos(id)++;
+        fi
+        if(pedidos(id)>-1) do
+          pedidos(id)++l
+        fi
+      end pedidos
+    OR
+      when(esperando>0)=> accept libre(id:out int) do 
+        id=pedidos(max);//devuelve el id del que mas pedidos tenga
+        pedidos(id)=-1;// reiniciamos los pedidos
+        esperando--;
+        end libre;
+    end loop;
+  end empresa;
+
+  task body camion is
+    int id;
+  begin
+
+    loop
+      empresa.libre(id);
+      persona(id).recolectar();
+    end loop;
+  end;
+
+begin
+  for(1..P) do 
+    persona(i).asignacion(i);
+  end for;
+end ejercicio8;
+
+
+7. Hay un sistema de reconocimiento de huellas dactilares de la policía que tiene 8 Servidores 
+para realizar el reconocimiento, cada uno de ellos trabajando con una Base de Datos propia; 
+a su vez hay un Especialista que utiliza indefinidamente. El sistema funciona de la siguiente 
+manera: el Especialista toma una imagen de una huella (TEST) y se la envía a los servidores 
+para que cada uno de ellos le devuelva el código y el valor de similitud de la huella que más 
+se asemeja a TEST en su BD; al final del procesamiento, el especialista debe conocer el 
+código de la huella con mayor valor de similitud entre las devueltas por los 8 servidores. 
+Cuando ha terminado de procesar una huella comienza nuevamente todo el ciclo. Nota: 
+suponga que existe una función Buscar(test, código, valor) que utiliza cada Servidor donde 
+recibe como parámetro de entrada la huella test, y devuelve como parámetros de salida el 
+código y el valor de similitud de la huella más parecida a test en la BD correspondiente. 
+Maximizar la concurrencia y no generar demora innecesaria
+
+process ejercicio7 is
+  task type servidor is;
+  Servidores:array(1..8) of servidor;
+  
+  task especialista is;
+    Entry pedido(huella:out test);
+    Entry entrega(codigo:in int,valor:in int);
+  end especialista;
+
+  task body servidor is 
+  test huella;
+  int codigo,valor;
+  begin
+    loop 
+      especialista.pedido(huella);
+      Buscar(huella,codigo,valor);
+      especialista.entrega(codigo,valor);
+    end loop;
+  end servidor;
+
+  task body especialista is
+    test huellaE; 
+    int codigoAct,valorAct;
+  begin
+    loop
+      huellaE=test();
+      for i in 1 to 8 loop
+        accept pedido(huella:out test ) do 
+          huella=huellaE;
+        end pedido;
+      end loop;
+      for i in 1 to 8 loop
+        accept entrega(codigo: in int,valor: in int) do 
+          if(valorAct<valor) then
+            codigoAct=codigo;
+            valorAct=valor;
+          end if;
+        end entrega;
+      end loop;
+    end loop;
+  end especialista;
+begin
+  null;
+end ejercicio7;

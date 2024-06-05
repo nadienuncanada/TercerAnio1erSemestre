@@ -1,0 +1,8 @@
+//PMA-> declara chan(chan nombrechan(datos))/ guardas if(cond1)-> acciones1; (cond2)->acciones2...end if;/send y receive
+//PMS-> canales implicitos !(enviar) ?(recibir)/ son bloqueantes y sincronicos. if y do guardas, B;C(Ejemplo?)->S;/ ejemplo!?.port// tiene la funcion empty.
+//ADA-> tasks y entrys, quien declara la entry puede hacer accept sobre esta, el resto solo entry calls a ella./accept "x"(params) o ejemplo."x"(params)
+
+
+ERRORES(PMS): Ojo con las guardas, usarlas bien y fijarte que es raro no tener que usarlas.
+	OJO con el tema de respetar el orden, en pms podes llegar a perder el orden si se te acumulan en la cola implicita.
+Errores(ADA): Ojo como poner admins cuando no son necesarios, hasta te complican mas.
